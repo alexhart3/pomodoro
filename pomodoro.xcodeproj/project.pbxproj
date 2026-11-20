@@ -27,6 +27,7 @@
 		8AE037E430B0C741001E938C /* pomodoro.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = pomodoro.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8AE037F330B0C743001E938C /* pomodoroTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = pomodoroTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8AE037FD30B0C743001E938C /* pomodoroUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = pomodoroUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		8AE0381030B0CBC5001E938C /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -75,6 +76,7 @@
 		8AE037DB30B0C741001E938C = {
 			isa = PBXGroup;
 			children = (
+				8AE0381030B0CBC5001E938C /* .gitignore */,
 				8AE037E630B0C741001E938C /* pomodoro */,
 				8AE037F630B0C743001E938C /* pomodoroTests */,
 				8AE0380030B0C743001E938C /* pomodoroUITests */,
