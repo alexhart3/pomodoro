@@ -9,9 +9,14 @@ import SwiftUI
 
 struct TimerView: View {
     
-    @State private var timeRemaining: Int = 25 * 60
+    private var workTime: Int = 1
+    private var breakTime: Int = 2
+    @State private var timeRemaining: Int = 1 * 60
     @State private var isRunning: Bool = false
     @State private var endDate: Date?
+    @State private var isBreak: Bool = false
+    
+    // TODO: Make timer auto switch between 25 minutes and 5 minutes, also dont hard code the buttons to 25 minutes and 5 minutes have them be dynamic using time remaining
     
     var body: some View {
         VStack {
@@ -21,7 +26,7 @@ struct TimerView: View {
                         0,
                         Int(ceil(endDate?.timeIntervalSince(context.date) ?? 0))
                     )
-
+                    
                     Text(secondsToTime(remaining))
                         .font(.largeTitle)
                         .fontWeight(.bold)
@@ -53,6 +58,7 @@ struct TimerView: View {
                     
                     timeRemaining = Int(ceil(endDate?.timeIntervalSinceNow ?? 0))
                     isRunning = false
+                    endDate = nil
                 }) {
                     HStack {
                         Image(systemName: "pause")
@@ -64,9 +70,10 @@ struct TimerView: View {
             
             HStack(spacing: 12) {
                 Button(action: {
-                    timeRemaining = 25 * 60
+                    timeRemaining = workTime * 60
                     endDate = nil
                     isRunning = false
+                    isBreak = false
                 }) {
                     HStack {
                         Image(systemName: "stop")
@@ -76,12 +83,12 @@ struct TimerView: View {
                 
                 Button(action: {
                     if isRunning {
-                        timeRemaining = 25 * 60
                         endDate = Date().addingTimeInterval(TimeInterval(timeRemaining))
                     } else {
-                        timeRemaining = 25 * 60
                         endDate = nil
                     }
+                    timeRemaining = workTime * 60
+                    isBreak = false
                 }) {
                     HStack {
                         Image(systemName: "arrow.trianglehead.clockwise.rotate.90")
@@ -91,8 +98,56 @@ struct TimerView: View {
             }
             .buttonStyle(TimerButtonStyle())
         }
+        .task(id: endDate) {
+            await waitForTimer()
+        }
         
         
+    }
+    
+    private func secondsToTime(_ seconds: Int) -> String {
+        let minutes = seconds / 60
+        let seconds = seconds % 60
+        
+        return String(format: "%02d:%02d", minutes, seconds)
+    }
+    
+    private func switchSession() {
+        if isBreak {
+            timeRemaining = workTime * 60
+        } else {
+            timeRemaining = breakTime * 60
+        }
+
+        isBreak.toggle()
+        endDate = Date.now.addingTimeInterval(TimeInterval(timeRemaining))
+    }
+    
+    @MainActor
+    private func waitForTimer() async {
+        guard let deadline = endDate, isRunning else {
+            return
+        }
+
+        let secondsLeft = max(0, deadline.timeIntervalSinceNow)
+        
+        print("Starting sleep. Seconds left: \(secondsLeft)")
+        do {
+            try await Task.sleep(for: .seconds(secondsLeft), tolerance: .zero)
+        } catch {
+            print("Sleep cancelled")
+            return
+        }
+        print("Woke up! Seconds past deadline: \(Date.now.timeIntervalSince(deadline))")
+
+        guard !Task.isCancelled,
+              isRunning,
+              endDate == deadline,
+              Date.now >= deadline else {
+            return
+        }
+
+        switchSession()
     }
 }
 
@@ -106,13 +161,6 @@ struct TimerButtonStyle: ButtonStyle {
                     .stroke(.primary, lineWidth: 2)
             }
     }
-}
-
-func secondsToTime(_ seconds: Int) -> String {
-    let minutes = seconds / 60
-    let seconds = seconds % 60
-    
-    return String(format: "%02d:%02d", minutes, seconds)
 }
 
 #Preview {
