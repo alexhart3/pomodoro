@@ -63,14 +63,26 @@ struct TimerView: View {
             .buttonStyle(TimerButtonStyle())
             
             HStack(spacing: 12) {
-                Button(action: {}) {
+                Button(action: {
+                    timeRemaining = 25 * 60
+                    endDate = nil
+                    isRunning = false
+                }) {
                     HStack {
                         Image(systemName: "stop")
                         Text("Stop")
                     }
                 }
                 
-                Button(action: {}) {
+                Button(action: {
+                    if isRunning {
+                        timeRemaining = 25 * 60
+                        endDate = Date().addingTimeInterval(TimeInterval(timeRemaining))
+                    } else {
+                        timeRemaining = 25 * 60
+                        endDate = nil
+                    }
+                }) {
                     HStack {
                         Image(systemName: "arrow.trianglehead.clockwise.rotate.90")
                         Text("Reset")
